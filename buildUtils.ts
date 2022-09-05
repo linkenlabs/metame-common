@@ -3,8 +3,7 @@ import * as fs from "fs";
 import { executeCommand } from "./scriptUtils";
 
 export async function getMsBuildPath(): Promise<string> {
-    var vsWherePath = `${
-        process.env["ProgramFiles(x86)"]
+    var vsWherePath = `${process.env["ProgramFiles(x86)"]
         }\\Microsoft Visual Studio\\Installer\\vswhere.exe`;
 
     if (!fs.existsSync(vsWherePath)) {
@@ -42,11 +41,19 @@ export async function compile(solutionPath: string): Promise<void> {
 }
 
 export function getSignToolPath(): string {
-    var signTool = `${process.env["ProgramFiles(x86)"]}\\Windows Kits\\10\\bin\\10.0.17763.0\\x64\\signtool.exe`;
-    if (!fs.existsSync(signTool)) {
-        throw `Path does not exist: ${signTool}`;
+
+    var programFilex86 = process.env["ProgramFiles(x86)"];
+
+    var paths = [`${programFilex86}\\Windows Kits\\10\\App Certification Kit\\signtool.exe`,
+    `${programFilex86}\\Windows Kits\\10\\bin\\10.0.17763.0\\x64\\signtool.exe`
+    ];
+
+    var signToolPath = paths.find(path => fs.existsSync(path));
+
+    if (!signToolPath) {
+        throw `Cannot find signtool.exe`;
     }
-    return signTool;
+    return signToolPath;
 }
 
 export function getInsigniaPath(): string {
